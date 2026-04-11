@@ -1,0 +1,65 @@
+schema_version: 1
+
+context:
+  version: "2.13.0"
+
+package:
+  name: smt
+  version: ${{ version }}
+
+source:
+  url: https://github.com/SMTorg/smt/archive/v${{ version }}.tar.gz
+  sha256: 265eef1d93e14f992dacf62b088908bc1b42fd1ff3a2674feaf61130d4f929f8
+  file_name: smt-${{ version }}.tar.gz
+
+build:
+  number: 1
+  skip: match(python, "<3.7")
+  script: ${{ PYTHON }} -m pip install . --no-deps --ignore-installed --no-cache-dir -vvv
+
+requirements:
+  build:
+    - ${{ compiler('c') }}
+    - ${{ stdlib("c") }}
+    - ${{ compiler('cxx') }}
+    - if: build_platform != target_platform
+      then: cross-python_${{ target_platform }}
+    - if: build_platform != target_platform
+      then: python
+    - if: build_platform != target_platform
+      then: cython
+    - if: build_platform != target_platform
+      then: numpy
+  host:
+    - pip
+    - setuptools
+    - cython
+    - python
+    - numpy
+  run:
+    - python
+    - numpy
+    - pydoe3
+    - scikit-learn
+    - jenn
+
+tests:
+  - python:
+      imports:
+        - smt
+        - smt.surrogate_models
+        - smt.kernels
+        - smt.problems
+        - smt.sampling_methods
+        - smt.applications
+      pip_check: false
+
+about:
+  license: BSD-3-Clause
+  license_file: LICENSE.txt
+  summary: surrogate model toolbox
+  homepage: https://github.com/SMTorg/smt
+
+extra:
+  recipe-maintainers:
+    - relf
